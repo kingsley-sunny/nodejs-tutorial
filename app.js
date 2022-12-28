@@ -1,21 +1,19 @@
-const http = require("http");
-const requestHandler = require("./routes");
 const express = require("express");
+const bodyParser = require("body-parser");
+
+const adminRoute = require("./routes/admin");
+const shopRoute = require("./routes/shop");
 
 const app = express();
 
-// app.use is a middle ware
-app.use((req, res, next) => {
-    console.log("In the middle ware");
-    next(); // This allows the next functions to continue to another middleware in line
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use("/admin", adminRoute);
+app.use(shopRoute);
+
+// The 404 page
+app.use((req, res) => {
+    res.status(404).send("<h1>Page not found</h1>");
 });
 
-app.use((req, res, next) => {
-    console.log("In the second middle ware");
-});
-
-console.log(app.use);
-
-const server = http.createServer(app);
-
-server.listen(3000);
+app.listen(3000);
