@@ -7,6 +7,7 @@ const server = http.createServer((req, res) => {
     const route = req.url;
     const method = req.method;
 
+    // if the route is home
     if (route === "/") {
         res.setHeader("Content-Type", "text/html");
         res.statusCode = 200;
@@ -21,6 +22,7 @@ const server = http.createServer((req, res) => {
         return res.end();
     }
 
+    // if the usl is create user and the mthod is get
     if (route === "/create-user" && method === "GET") {
         res.setHeader("Content-Type", "text/html");
         res.statusCode = 200;
@@ -31,7 +33,9 @@ const server = http.createServer((req, res) => {
         return res.end();
     }
 
+    // if the usl is create user and the mthod is post
     if (route === "/create-user" && method === "POST") {
+        // listen for the on data event
         req.on("data", chunk => {
             const parsedBody = chunk.toLocaleString();
             const data = parsedBody.split("=")[1];
