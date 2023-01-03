@@ -3,8 +3,6 @@ const http = require("http");
 
 const usersData = [];
 
-function handleRequest(req, res) {}
-
 const server = http.createServer((req, res) => {
     const route = req.url;
     const method = req.method;
