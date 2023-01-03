@@ -1,124 +1,24 @@
-const fs = require("fs");
-const http = require("http");
+const express = require("express");
 
-const usersData = [];
+const app = express();
 
-const server = http.createServer((req, res) => {
-    const route = req.url;
-    const method = req.method;
+// The home route middle ware
+function homerouteMiddleware(req, res) {
+    res.send(
+        `<div><h1>Hello you are in the homepage</h1><a href="/users">Go to the users page</a></div>`
+    );
+    return res.end();
+}
 
-    // if the route is home
-    if (route === "/") {
-        res.setHeader("Content-Type", "text/html");
-        res.statusCode = 200;
-        res.write(`<div>
-    <h1>Welcome to my first nodejs assignment</h1>
-    <br/>
-    <a href="/users"> view all the users of this application </a>
-    <br/>
-    <a href="/create-user"> create a user </a>
+// The users route middle ware
+function usersRouteMiddleware(req, res) {
+    res.send(
+        `<div><h1>Hello you are in the Users page</h1><a href="/">Go to the Home page</a></div>`
+    );
+    return res.end();
+}
 
-    </div>`);
-        return res.end();
-    }
+app.get("/", homerouteMiddleware);
+app.get("/users", usersRouteMiddleware);
 
-    // if the usl is create user and the mthod is get
-    if (route === "/create-user" && method === "GET") {
-        res.setHeader("Content-Type", "text/html");
-        res.statusCode = 200;
-        res.write(`<form method="POST" action="/create-user">
-            <input type="text" name="username" />
-            <button type="submit">Create A User</button>
-        </form>`);
-        return res.end();
-    }
-
-    // if the usl is create user and the mthod is post
-    if (route === "/create-user" && method === "POST") {
-        // listen for the on data event
-        req.on("data", chunk => {
-            const parsedBody = chunk.toLocaleString();
-            const data = parsedBody.split("=")[1];
-            usersData.push(data);
-
-            fs.readFile("users.json", (err, data) => {
-                if (err) {
-                    console.log(err);
-                    return;
-                }
-                if (!data.toString()) {
-                    fs.writeFile("users.json", JSON.stringify(usersData), () => {});
-
-                    res.setHeader("Content-Type", "text/html");
-                    res.writeHead(301, { Location: "/users" });
-                    return res.end();
-                }
-
-                const parsedData = JSON.parse(data);
-                fs.writeFile(
-                    "users.json",
-                    JSON.stringify([...parsedData, ...usersData]),
-                    (err, dat) => {
-                        if (err) {
-                            console.log(err);
-                            return;
-                        }
-                        res.setHeader("Content-Type", "text/html");
-                        res.writeHead(301, { Location: "/users" });
-                        return res.end();
-                    }
-                );
-            });
-        });
-    }
-
-    if (route === "/users" && method === "GET") {
-        fs.readFile("users.json", (err, data) => {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            if (data.toString()) {
-                const parsedData = JSON.parse(data.toString());
-
-                let list = ``;
-
-                for (const data of parsedData) {
-                    list += `<li>${data}</li>`;
-                }
-
-                res.setHeader("Content-Type", "text/html");
-                res.statusCode = 200;
-
-                res.write(`<div>
-                <h1>List of users</h1>
-                <ol>
-                    ${list}
-                </ol>
-
-                <br>
-                <br>
-                <a href="/create-user">Create a new User</a>
-            </div>`);
-
-                return res.end();
-            }
-            res.setHeader("Content-Type", "text/html");
-            res.statusCode = 200;
-
-            res.write(`<div>
-                    <h1>List of users</h1>
-                    <ol>
-                        There are no users
-                    </ol>
-    
-                    <br>
-                    <br>
-                    <a href="/create-user">Create a new User</a>
-                </div>`);
-
-            return res.end();
-        });
-    }
-});
-server.listen(3000);
+app.listen(3000);
