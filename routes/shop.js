@@ -1,21 +1,11 @@
 const express = require("express");
 const path = require("path");
 
-const rootDir = require("../utils/path");
-const { products } = require("./admin");
+const productControllers = require("../controllers/product.controllers");
 
 const route = express.Router();
 
 // app.use is a middle ware
-route.get("/", (req, res, next) => {
-    res.render("shop", {
-        products: products,
-        documentTitle: "My Shop",
-        path: "/",
-        hasProduct: products.length > 0,
-        productCSS: true,
-        shopIsActive: true,
-    });
-});
+route.get("/", productControllers.getProductsPage);
 
 module.exports = route;
