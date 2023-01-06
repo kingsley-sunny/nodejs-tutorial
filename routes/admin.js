@@ -11,13 +11,15 @@ route.get("/add-product", (req, res, next) => {
     res.render("add-product", {
         documentTitle: "Add Product",
         path: "/admin/add-product",
-        layout: false,
+        productCSS: true,
+        formCSS: true,
+        addProductIsActive: true,
     });
 });
 
 route.post("/add-product", (req, res) => {
     const body = req.body;
-    products.push({ title: body.title, layout: false });
+    products.push({ title: body.title });
     res.redirect("/");
 });
 

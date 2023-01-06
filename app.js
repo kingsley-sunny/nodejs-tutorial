@@ -9,7 +9,13 @@ const shopRoute = require("./routes/shop");
 const app = express();
 
 // app.engine registers the engine
-app.engine("hbs", expresshandlebars.create().engine);
+app.engine(
+    "hbs",
+    expresshandlebars.create({
+        layoutsDir: "views/layouts",
+        extname: "hbs",
+    }).engine
+);
 app.set("view engine", "hbs");
 app.set("views", "views");
 
@@ -21,7 +27,7 @@ app.use(shopRoute);
 
 // The 404 page
 app.use((req, res) => {
-    res.render("404", { documentTitle: "Page Not Found", layout: false });
+    res.render("404", { documentTitle: "Page Not Found" });
 });
 
 app.listen(3000);

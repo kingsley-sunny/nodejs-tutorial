@@ -12,8 +12,9 @@ route.get("/", (req, res, next) => {
         products: products,
         documentTitle: "My Shop",
         path: "/",
-        layout: false,
         hasProduct: products.length > 0,
+        productCSS: true,
+        shopIsActive: true,
     });
 });
 
