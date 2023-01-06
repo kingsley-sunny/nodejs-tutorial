@@ -8,7 +8,13 @@ const route = express.Router();
 
 // app.use is a middle ware
 route.get("/", (req, res, next) => {
-    res.render("shop", { products: products, documentTitle: "My Shop", path: "/" });
+    res.render("shop", {
+        products: products,
+        documentTitle: "My Shop",
+        path: "/",
+        layout: false,
+        hasProduct: products.length > 0,
+    });
 });
 
 module.exports = route;

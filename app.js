@@ -1,13 +1,16 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
+const expresshandlebars = require("express-handlebars");
 
 const adminData = require("./routes/admin");
 const shopRoute = require("./routes/shop");
 
 const app = express();
 
-app.set("view engine", "pug");
+// app.engine registers the engine
+app.engine("hbs", expresshandlebars.create().engine);
+app.set("view engine", "hbs");
 app.set("views", "views");
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -18,7 +21,7 @@ app.use(shopRoute);
 
 // The 404 page
 app.use((req, res) => {
-    res.render("404", { documentTitle: "Page Not Found" });
+    res.render("404", { documentTitle: "Page Not Found", layout: false });
 });
 
 app.listen(3000);
