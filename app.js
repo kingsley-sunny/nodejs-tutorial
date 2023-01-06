@@ -8,15 +8,8 @@ const shopRoute = require("./routes/shop");
 
 const app = express();
 
-// app.engine registers the engine
-app.engine(
-    "hbs",
-    expresshandlebars.create({
-        layoutsDir: "views/layouts",
-        extname: "hbs",
-    }).engine
-);
-app.set("view engine", "hbs");
+// we set it to ejs because express has registed the ejs and pug template by default
+app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use(express.static(path.join(__dirname, "public")));
