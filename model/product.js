@@ -22,15 +22,13 @@ module.exports = class Product {
         });
     }
 
-    static fetchAll() {
+    static fetchAll(cb) {
         let initialData = [];
-        return new Promise(res =>
-            fs.readFile(filePath, (err, data) => {
-                if (!err) {
-                    initialData = JSON.parse(data.toString());
-                }
-                return res(initialData);
-            })
-        );
+        fs.readFile(filePath, (err, data) => {
+            if (!err) {
+                initialData = JSON.parse(data.toString());
+            }
+            cb(initialData);
+        });
     }
 };

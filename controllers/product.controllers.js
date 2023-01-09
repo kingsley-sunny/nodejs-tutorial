@@ -18,7 +18,7 @@ module.exports.postAProduct = (req, res) => {
 };
 
 module.exports.getProductsPage = (req, res, next) => {
-    const products = ProductModel.fetchAll().then(fileData => {
+    ProductModel.fetchAll(fileData => {
         res.render("shop", {
             products: fileData,
             documentTitle: "My Shop",
