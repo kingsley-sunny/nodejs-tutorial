@@ -4,7 +4,7 @@ const path = require("path");
 
 const adminRoute = require("./routes/admin");
 const shopRoute = require("./routes/shop");
-const errorController = require("./controllers/errors.controllers");
+const errorController = require("./controllers/error");
 
 const app = express();
 
@@ -19,6 +19,6 @@ app.use("/admin", adminRoute);
 app.use(shopRoute);
 
 // The 404 page
-app.use(errorController.get404Page);
+app.use(errorController.get404);
 
 app.listen(3000);

@@ -1,11 +1,23 @@
-const express = require("express");
 const path = require("path");
 
-const productControllers = require("../controllers/product.controllers");
+const express = require("express");
 
-const route = express.Router();
+const shopController = require("../controllers/shop");
 
-// app.use is a middle ware
-route.get("/", productControllers.getProductsPage);
+const router = express.Router();
 
-module.exports = route;
+router.get("/", shopController.getIndex);
+
+router.get("/products", shopController.getProducts);
+
+router.get("/products/:productId", shopController.getProduct);
+
+router.get("/cart", shopController.getCart);
+
+router.post("/cart", shopController.postCart);
+
+router.get("/orders", shopController.getOrders);
+
+router.get("/checkout", shopController.getCheckout);
+
+module.exports = router;
