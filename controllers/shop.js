@@ -49,8 +49,15 @@ exports.postCart = (req, res, next) => {
     const productId = req.body.productId;
     Product.fetchById(productId, product => {
         Cart.addToCart(product, data => {
-            res.redirect("/cart");
+            res.redirect("/");
         });
+    });
+};
+
+exports.deleteCart = (req, res, next) => {
+    const productId = req.body.productId;
+    Cart.deleleCart(productId, () => {
+        res.redirect("/cart");
     });
 };
 

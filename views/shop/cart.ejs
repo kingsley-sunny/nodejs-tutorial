@@ -7,7 +7,13 @@
                 <% if (cart.products.length > 0) { %>
                     <ul>
                         <% for (const product of cart.products) { %>
-                            <li><%= product.title %> (<%= product.qty %>)</li>
+                            <li>
+                                <p><%= product.title %> (<%= product.qty %>)</p>
+                                <form action="/delete-cart" method="post">
+                                    <input type="hidden" name="productId" value="<%= product.id %>">
+                                    <button class="btn" type="submit">Delete</button>
+                                </form>
+                            </li>
                         <% } %>
                     </ul>
                     <p>Total Quantity:  <%= cart.totalQuantity %></p>
