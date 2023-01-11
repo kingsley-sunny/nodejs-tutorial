@@ -5,9 +5,18 @@
             "imageUrl": "https://www.publicdomainpictures.net/pictures/10000/velka/1-1210009435EGmE.jpg",
             "description": "This is a computer",
             "price": "484.43",
-            "id": "lcpjm4oflcpjm4of"
+            "id": "lcpjm4oflcpjm4of",
+            "qty": 2
+        },
+        {
+            "id": "ewy9545",
+            "title": "A Book",
+            "imageUrl": "https://www.publicdomainpictures.net/pictures/10000/velka/1-1210009435EGmE.jpg",
+            "description": "This is an awesome book!",
+            "price": "19",
+            "qty": 1
         }
     ],
-    "totalPrice": 968.86,
-    "totalQuantity": 2
+    "totalPrice": 987.86,
+    "totalQuantity": 3
 }
