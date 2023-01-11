@@ -36,9 +36,12 @@ exports.getIndex = (req, res, next) => {
 };
 
 exports.getCart = (req, res, next) => {
-    res.render("shop/cart", {
-        path: "/cart",
-        pageTitle: "Your Cart",
+    Cart.getCart(cart => {
+        res.render("shop/cart", {
+            path: "/cart",
+            pageTitle: "Your Cart",
+            cart: cart,
+        });
     });
 };
 
@@ -46,10 +49,7 @@ exports.postCart = (req, res, next) => {
     const productId = req.body.productId;
     Product.fetchById(productId, product => {
         Cart.addToCart(product, data => {
-            res.render("shop/cart", {
-                path: "/cart",
-                pageTitle: "Your Cart",
-            });
+            res.redirect("/cart");
         });
     });
 };

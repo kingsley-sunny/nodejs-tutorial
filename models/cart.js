@@ -11,7 +11,7 @@ const getCartFromFile = cb => {
             totalQuantity: 0,
         };
 
-        if (!err) {
+        if (data.toString()) {
             initialData = JSON.parse(data);
         }
 
@@ -51,6 +51,12 @@ module.exports = class Cart {
             fs.writeFile(p, JSON.stringify({ ...updatedCart }), (err, data) => {
                 cb(data);
             });
+        });
+    }
+
+    static getCart(cb) {
+        getCartFromFile(cartData => {
+            cb(cartData);
         });
     }
 };
