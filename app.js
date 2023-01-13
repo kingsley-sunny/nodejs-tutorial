@@ -5,12 +5,21 @@ const path = require("path");
 const adminRoute = require("./routes/admin");
 const shopRoute = require("./routes/shop");
 const errorController = require("./controllers/error");
+const db = require("./database/database");
 
 const app = express();
 
 // we set it to ejs because express has registed the ejs and pug template by default
 app.set("view engine", "ejs");
 app.set("views", "views");
+
+db.execute("SELECT * FROM products")
+    .then(res => {
+        console.log(res[1]);
+    })
+    .catch(err => {
+        console.log(err);
+    });
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
