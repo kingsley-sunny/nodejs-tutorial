@@ -63,13 +63,15 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll()
-        .then(([products]) =>
+    Product.findAll()
+        .then(pro => {
+            const products = pro;
+            console.log(products);
             res.render("admin/products", {
                 prods: products,
                 pageTitle: "Admin Products",
                 path: "/admin/products",
-            })
-        )
+            });
+        })
         .catch(err => console.log(err));
 };
