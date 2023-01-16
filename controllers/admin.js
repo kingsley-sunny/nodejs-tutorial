@@ -53,11 +53,11 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
     const productId = req.body.id;
-    Product.delete(productId, () => {
-        Cart.deleleCart(productId, () => {
-            res.redirect("/admin/products");
-        });
-    });
+    Product.findByPk(productId)
+        .then(product => {
+            product.destroy().then(() => res.redirect("/admin/products"));
+        })
+        .catch(err => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {
