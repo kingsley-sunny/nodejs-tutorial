@@ -46,22 +46,9 @@ exports.postEditProduct = (req, res, next) => {
     const description = product.description;
     const price = product.price;
 
-    Product.findByPk(id).then(product => {
-        product.title = title;
-        product.description = description;
-        product.imageUrl = imageUrl;
-        product.price = price;
-        product
-            .save()
-            .then(result => {
-                res.redirect("/admin/products");
-            })
-            .catch(err => console.log(err));
-    });
-
-    // Product.update({ title, id, imageUrl, description, price }, { where: { id: id } })
-    //     .then(() => res.redirect("/admin/products"))
-    //     .catch(err => console.log(err));
+    Product.update({ title, id, imageUrl, description, price }, { where: { id: id } })
+        .then(() => res.redirect("/admin/products"))
+        .catch(err => console.log(err));
 };
 
 exports.postDeleteProduct = (req, res, next) => {
