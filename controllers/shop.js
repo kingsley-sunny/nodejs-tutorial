@@ -1,13 +1,11 @@
-const Product = require("../models/product");
-const Cart = require("../models/cart");
-const { CartItem } = require("../models/cart-item");
+const { Product } = require("../models/product");
 const { User } = require("../models/user");
-const { OrderItem } = require("../models/orderItem");
-const { Orders } = require("../models/orders");
+// const { OrderItem } = require("../models/orderItem");
+// const { Orders } = require("../models/orders");
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const products = await Product.findAll();
+    const products = await Product.fetchAll();
     return res.render("shop/product-list", {
       prods: products,
       pageTitle: "All Products",
@@ -21,7 +19,7 @@ exports.getProducts = async (req, res, next) => {
 exports.getProduct = async (req, res) => {
   const productId = req.params.productId;
   try {
-    const product = await Product.findByPk(productId);
+    const product = await Product.fetchOne(productId);
     if (!product) {
       return res.redirect("/404");
     }
@@ -37,7 +35,7 @@ exports.getProduct = async (req, res) => {
 
 exports.getIndex = async (req, res, next) => {
   try {
-    const products = await Product.findAll();
+    const products = await Product.fetchAll();
     return res.render("shop/index", {
       prods: products,
       pageTitle: "Shop",
@@ -50,11 +48,11 @@ exports.getIndex = async (req, res, next) => {
 
 exports.getCart = async (req, res, next) => {
   try {
-    const cart = await CartItem.findAll();
+    const products = await req.user.getCart();
     return res.render("shop/cart", {
       path: "/cart",
       pageTitle: "Your Cart",
-      products: cart,
+      products,
     });
   } catch (error) {
     console.log(error);
@@ -64,25 +62,7 @@ exports.getCart = async (req, res, next) => {
 exports.postCart = async (req, res, next) => {
   const productId = req.body.productId;
   try {
-    const product = await Product.findByPk(productId);
-
-    const cartItems = await CartItem.findAll({
-      where: { cartId: req.cart.id, productId: productId },
-    });
-    const cartItem = cartItems[0];
-
-    if (!cartItem) {
-      await CartItem.create({
-        name: product.title,
-        quantity: 1,
-        cartId: req.cart.id,
-        productId: productId,
-      });
-      return res.redirect("/cart");
-    }
-
-    cartItem.quantity += 1;
-    await cartItem.save();
+    await req.user.addToCart(productId);
     return res.redirect("/cart");
   } catch (error) {
     console.log(error);
@@ -92,10 +72,7 @@ exports.postCart = async (req, res, next) => {
 exports.deleteCart = async (req, res, next) => {
   const productId = req.body.productId;
   try {
-    const response = await CartItem.destroy({
-      where: { cartId: req.cart.id, productId: productId },
-    });
-    console.log(response);
+    await req.user.deleteProductFromCart(productId);
     return res.redirect("/cart");
   } catch (error) {
     console.log(error);
@@ -103,7 +80,7 @@ exports.deleteCart = async (req, res, next) => {
 };
 
 exports.getOrders = async (req, res, next) => {
-  const orders = await req.user.getOrders({ include: "products" });
+  const orders = await req.user.getOrders();
 
   res.render("shop/orders", {
     path: "/orders",
@@ -114,18 +91,7 @@ exports.getOrders = async (req, res, next) => {
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const order = await req.user.createOrder();
-    const cartItems = await CartItem.findAll({ where: { cartId: req.cart.id } });
-
-    const formattedCartItems = cartItems.map(item => {
-      return {
-        quantity: item.quantity,
-        orderId: order.id,
-        productId: item.productId,
-      };
-    });
-    await OrderItem.bulkCreate(formattedCartItems, { returning: true });
-    await CartItem.destroy({ where: { cartId: req.cart.id } });
+    await req.user.addOrder();
 
     return res.redirect("/orders");
   } catch (error) {

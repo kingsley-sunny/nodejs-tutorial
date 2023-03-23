@@ -3,15 +3,10 @@ const bodyParser = require("body-parser");
 const path = require("path");
 
 const adminRoute = require("./routes/admin");
-const shopRoute = require("./routes/shop");
 const errorController = require("./controllers/error");
-const { sequelize } = require("./database/database");
-const Product = require("./models/product");
+const { connectToMongodb } = require("./database/database");
+const { shopRoute } = require("./routes/shop");
 const { User } = require("./models/user");
-const { Cart } = require("./models/cart");
-const { CartItem } = require("./models/cart-item");
-const { Orders } = require("./models/orders");
-const { OrderItem } = require("./models/orderItem");
 
 const app = express();
 
@@ -22,20 +17,10 @@ app.set("views", "views");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use((req, res, next) => {
-  if (!req.user) {
-    User.findByPk(1)
-      .then(user => {
-        req.user = user;
-        req.user.getCart({ where: { id: req.user.id } }).then(res => {
-          req.cart = res;
-          next();
-        });
-      })
-      .catch(err => console.log(err));
-  } else {
-    next();
-  }
+app.use(async (req, res, next) => {
+  const user = await User.findById("6419acfbb8dd97ef382a3707");
+  req.user = new User(user.name, user.email, user.cart, user._id);
+  next();
 });
 
 app.use("/admin", adminRoute);
@@ -44,35 +29,11 @@ app.use(shopRoute);
 // The 404 page
 app.use(errorController.get404);
 
-User.hasMany(Product);
-Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
-
-User.hasOne(Cart);
-Cart.belongsTo(User);
-
-Cart.belongsToMany(Product, { through: CartItem, uniqueKey: false });
-Product.belongsToMany(Cart, { through: CartItem, uniqueKey: false });
-
-User.hasMany(Orders);
-Orders.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
-
-Orders.belongsToMany(Product, { through: OrderItem });
-Product.belongsToMany(Orders, { through: OrderItem });
-
-const syncToDatabase = async () => {
-  try {
-    await sequelize
-      // .sync({ force: true });
-      .sync();
-    const user = await User.findByPk(1);
-    if (!user) {
-      const newUser = await User.create({ name: "BossEkc", email: "test@gmail.com" });
-      await Cart.create({ userId: newUser.id });
-    }
+connectToMongodb()
+  .then(res => {
+    console.log("started !!!!!! ");
     app.listen(3000);
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-syncToDatabase();
+  })
+  .catch(err => {
+    console.log(err);
+  });

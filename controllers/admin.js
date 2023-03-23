@@ -1,5 +1,4 @@
-const Cart = require("../models/cart");
-const Product = require("../models/product");
+const { Product } = require("../models/product");
 
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
@@ -16,7 +15,7 @@ exports.postAddProduct = async (req, res, next) => {
   const description = req.body.description;
   // automatically sequelize will make a createProduct method
   try {
-    await req.user.createProduct({ title, imageUrl, price, description });
+    await new Product(title, price, description, imageUrl).save();
     return res.redirect("/");
   } catch (error) {
     console.log(error.message);
@@ -26,8 +25,7 @@ exports.postAddProduct = async (req, res, next) => {
 exports.getEditProduct = async (req, res, next) => {
   const productId = req.params.productId;
   try {
-    const products = await req.user.getProducts({ where: { id: productId } });
-    const product = products[0];
+    const product = await Product.fetchOne(productId);
     if (product) {
       return res.render("admin/edit-product", {
         pageTitle: "Edit Product",
@@ -51,7 +49,8 @@ exports.postEditProduct = async (req, res, next) => {
   const price = product.price;
 
   try {
-    await Product.update({ title, id, imageUrl, description, price }, { where: { id: id } });
+    const product = await Product.updateOne(id, { title, id, imageUrl, description, price });
+    console.log(product);
     res.redirect("/admin/products");
   } catch (error) {
     console.log(error);
@@ -61,8 +60,7 @@ exports.postEditProduct = async (req, res, next) => {
 exports.postDeleteProduct = async (req, res, next) => {
   const productId = req.body.id;
   try {
-    const product = await Product.findByPk(productId);
-    await product.destroy();
+    await Product.deleteOne(productId);
     res.redirect("/admin/products");
   } catch (error) {
     console.log(error);
@@ -71,7 +69,8 @@ exports.postDeleteProduct = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const products = await req.user.getProducts();
+    const products = await Product.fetchAll();
+    console.log(products);
     res.render("admin/products", {
       prods: products,
       pageTitle: "Admin Products",
