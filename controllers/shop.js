@@ -1,11 +1,10 @@
+const { Order } = require("../models/orders");
 const { Product } = require("../models/product");
 const { User } = require("../models/user");
-// const { OrderItem } = require("../models/orderItem");
-// const { Orders } = require("../models/orders");
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const products = await Product.fetchAll();
+    const products = await Product.find();
     return res.render("shop/product-list", {
       prods: products,
       pageTitle: "All Products",
@@ -19,7 +18,7 @@ exports.getProducts = async (req, res, next) => {
 exports.getProduct = async (req, res) => {
   const productId = req.params.productId;
   try {
-    const product = await Product.fetchOne(productId);
+    const product = await Product.findById(productId);
     if (!product) {
       return res.redirect("/404");
     }
@@ -35,7 +34,7 @@ exports.getProduct = async (req, res) => {
 
 exports.getIndex = async (req, res, next) => {
   try {
-    const products = await Product.fetchAll();
+    const products = await Product.find();
     return res.render("shop/index", {
       prods: products,
       pageTitle: "Shop",
@@ -49,6 +48,7 @@ exports.getIndex = async (req, res, next) => {
 exports.getCart = async (req, res, next) => {
   try {
     const products = await req.user.getCart();
+    console.log(products);
     return res.render("shop/cart", {
       path: "/cart",
       pageTitle: "Your Cart",
@@ -80,7 +80,8 @@ exports.deleteCart = async (req, res, next) => {
 };
 
 exports.getOrders = async (req, res, next) => {
-  const orders = await req.user.getOrders();
+  const userId = req.user._id;
+  const orders = await Order.find({ userId: userId });
 
   res.render("shop/orders", {
     path: "/orders",
@@ -90,8 +91,18 @@ exports.getOrders = async (req, res, next) => {
 };
 
 exports.createOrder = async (req, res, next) => {
+  const userId = req.user._id;
   try {
-    await req.user.addOrder();
+    const user = await req.user.populate("cart.items.productId");
+    const products = user.cart.items.map(item => {
+      const product = item.productId._doc;
+      return { product: { ...product }, quantity: item.quantity };
+    });
+    const order = new Order({ userId: userId, products });
+    order.save();
+
+    req.user.cart.items = [];
+    await req.user.save();
 
     return res.redirect("/orders");
   } catch (error) {

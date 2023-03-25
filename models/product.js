@@ -1,72 +1,41 @@
-const { ObjectId, ObjectID } = require("mongodb");
-const { getDb } = require("../database/database");
+const { Schema, model } = require("mongoose");
+const { User } = require("./user");
 
-class Product {
-  constructor(title, price, description, imageUrl) {
-    this.title = title;
-    this.price = price;
-    this.description = description;
-    this.imageUrl = imageUrl;
-  }
+const productSchmema = new Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    imageUrl: {
+      type: String,
+      required: true,
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "users",
+    },
+  },
+  { timestamps: true, strict: true }
+);
 
-  async save() {
-    try {
-      const db = getDb();
-      const result = await db.collection("products").insertOne(this);
-      return result;
-    } catch (error) {
-      console.log(error);
-    }
-  }
+// productSchmema.pre("deleteOne", { document: false, query: true }, async function (erro) {
+//   const product = await this.model.findOne(this.getFilter());
+//   User.updateMany(
+//     { "cart.items.productId": product._id },
+//     { $pull: { "cart.items": { productId: product._id, quantity: { $gte: 0 } } } }
+//   );
+//   console.log("nack");
+// });
 
-  static async fetchAll() {
-    try {
-      const db = getDb();
-      const rawProducts = await db.collection("products").find().toArray();
-      return rawProducts;
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  static async fetchOne(id) {
-    try {
-      const db = await getDb().collection("products").findOne(new ObjectId(id));
-      return db;
-    } catch (error) {}
-  }
-
-  static async updateOne(id, details) {
-    try {
-      const db = await getDb()
-        .collection("products")
-        .updateOne({ _id: new ObjectId(id) }, { $set: details });
-      return db;
-    } catch (error) {
-      throw Error(error);
-    }
-  }
-
-  static async deleteOne(id) {
-    try {
-      const db = await getDb();
-
-      // Delete all the deleted product from all the users cart
-      const response = await db
-        .collection("users")
-        .updateMany(
-          { "cart.items.productId": new ObjectId(id) },
-          { $pull: { "cart.items": { productId: new ObjectId(id), quantity: { $gte: 0 } } } }
-        );
-
-      // delete the product
-      await db.collection("products").deleteOne({ _id: new ObjectId(id) });
-
-      return response;
-    } catch (error) {
-      throw Error(error);
-    }
-  }
-}
-
-module.exports.Product = Product;
+exports.Product = model("product", productSchmema);
+exports.productSchmema = productSchmema;

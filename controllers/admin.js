@@ -1,4 +1,7 @@
+const { ObjectId } = require("mongodb");
 const { Product } = require("../models/product");
+const { User } = require("../models/user");
+const { default: mongoose } = require("mongoose");
 
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
@@ -13,9 +16,8 @@ exports.postAddProduct = async (req, res, next) => {
   const imageUrl = req.body.imageUrl;
   const price = req.body.price;
   const description = req.body.description;
-  // automatically sequelize will make a createProduct method
   try {
-    await new Product(title, price, description, imageUrl).save();
+    await new Product({ title, imageUrl, price, description, userId: req.user._id }).save();
     return res.redirect("/");
   } catch (error) {
     console.log(error.message);
@@ -25,7 +27,7 @@ exports.postAddProduct = async (req, res, next) => {
 exports.getEditProduct = async (req, res, next) => {
   const productId = req.params.productId;
   try {
-    const product = await Product.fetchOne(productId);
+    const product = await Product.findById(productId);
     if (product) {
       return res.render("admin/edit-product", {
         pageTitle: "Edit Product",
@@ -49,8 +51,10 @@ exports.postEditProduct = async (req, res, next) => {
   const price = product.price;
 
   try {
-    const product = await Product.updateOne(id, { title, id, imageUrl, description, price });
-    console.log(product);
+    const product = await Product.updateOne(
+      { _id: id, userId: req.user._id },
+      { title, id, imageUrl, description, price }
+    );
     res.redirect("/admin/products");
   } catch (error) {
     console.log(error);
@@ -60,7 +64,17 @@ exports.postEditProduct = async (req, res, next) => {
 exports.postDeleteProduct = async (req, res, next) => {
   const productId = req.body.id;
   try {
-    await Product.deleteOne(productId);
+    await User.updateMany(
+      { _id: req.user._id },
+      {
+        $pull: {
+          "cart.items": {
+            productId: new mongoose.Types.ObjectId(productId),
+          },
+        },
+      }
+    );
+    await Product.deleteOne({ _id: productId });
     res.redirect("/admin/products");
   } catch (error) {
     console.log(error);
@@ -69,8 +83,7 @@ exports.postDeleteProduct = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const products = await Product.fetchAll();
-    console.log(products);
+    const products = await Product.find();
     res.render("admin/products", {
       prods: products,
       pageTitle: "Admin Products",

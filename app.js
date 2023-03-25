@@ -7,6 +7,7 @@ const errorController = require("./controllers/error");
 const { connectToMongodb } = require("./database/database");
 const { shopRoute } = require("./routes/shop");
 const { User } = require("./models/user");
+const { Product } = require("./models/product");
 
 const app = express();
 
@@ -18,8 +19,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use(async (req, res, next) => {
-  const user = await User.findById("6419acfbb8dd97ef382a3707");
-  req.user = new User(user.name, user.email, user.cart, user._id);
+  const user = await User.findById("641c32d99c35b09294f7be75");
+  req.user = user;
   next();
 });
 
@@ -29,11 +30,16 @@ app.use(shopRoute);
 // The 404 page
 app.use(errorController.get404);
 
-connectToMongodb()
-  .then(res => {
+(async () => {
+  try {
+    await connectToMongodb();
+    const user = await User.findOne();
+    if (!user) {
+      await new User({ name: "Sunny", email: "test@gmail.com", cart: { items: [] } }).save();
+    }
     console.log("started !!!!!! ");
     app.listen(3000);
-  })
-  .catch(err => {
-    console.log(err);
-  });
+  } catch (error) {
+    console.log(error);
+  }
+})();
