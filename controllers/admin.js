@@ -7,7 +7,7 @@ exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "/admin/add-product",
-    edit: false,
+    editing: false,
   });
 };
 
@@ -32,7 +32,7 @@ exports.getEditProduct = async (req, res, next) => {
       return res.render("admin/edit-product", {
         pageTitle: "Edit Product",
         path: "/admin/Edit-product",
-        edit: true,
+        editing: true,
         product: product,
       });
     }

@@ -11,6 +11,7 @@ exports.getProducts = async (req, res, next) => {
       path: "/products",
     });
   } catch (error) {
+    s;
     console.log(error);
   }
 };
