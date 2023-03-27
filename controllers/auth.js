@@ -41,10 +41,16 @@ exports.postLogin = async (req, res) => {
 };
 
 exports.getSignUpPage = (req, res) => {
+  const flashMessages = req.flash("error");
+  let message;
+  if (flashMessages.length !== 0) {
+    message = flashMessages;
+    console.log(message);
+  }
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "SignUp",
-    errorMessage: undefined,
+    errorMessage: message,
   });
 };
 
@@ -54,6 +60,7 @@ exports.postSignUp = async (req, res) => {
   try {
     const isUserPresent = await User.findOne({ email: email });
     if (isUserPresent) {
+      req.flash("error", "This User Exists!!");
       return res.redirect("/signup");
     }
     const hashedPassword = await bycript.hash(password, 12);
