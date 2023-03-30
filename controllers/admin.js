@@ -44,7 +44,7 @@ exports.getEditProduct = async (req, res, next) => {
 
 exports.postEditProduct = async (req, res, next) => {
   const product = req.body;
-  const id = product.id;
+  const id = product.productId;
   const title = product.title;
   const imageUrl = product.imageUrl;
   const description = product.description;
@@ -62,10 +62,10 @@ exports.postEditProduct = async (req, res, next) => {
 };
 
 exports.postDeleteProduct = async (req, res, next) => {
-  const productId = req.body.id;
+  const productId = req.body.productId;
   try {
     await User.updateMany(
-      { _id: req.user._id },
+      {},
       {
         $pull: {
           "cart.items": {
@@ -74,7 +74,7 @@ exports.postDeleteProduct = async (req, res, next) => {
         },
       }
     );
-    await Product.deleteOne({ _id: productId });
+    await Product.deleteOne({ _id: productId, userId: req.user._id });
     res.redirect("/admin/products");
   } catch (error) {
     console.log(error);
@@ -83,7 +83,7 @@ exports.postDeleteProduct = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find({ userId: req.user._id });
     res.render("admin/products", {
       prods: products,
       pageTitle: "Admin Products",

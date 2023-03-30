@@ -85,7 +85,7 @@ exports.postSignUp = async (req, res) => {
     });
     await newUser.save();
 
-    await transporter.sendMail({
+    transporter.sendMail({
       from: `"sandbox.smtp.mailtrap.io 👻" < sandbox.smtp.mailtrap.io>`, // sender address
       to: email, // list of receivers
       subject: "Hello Dear ✔", // Subject line
