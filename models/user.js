@@ -13,6 +13,8 @@ const userSchema = new Schema(
       unique: true,
       index: true,
     },
+    resetToken: String,
+    resetTokenExpiration: Date,
     password: {
       type: String,
       required: true,
